@@ -101,6 +101,21 @@ var r2BucketBindingResource = &schema.Resource{
 	},
 }
 
+var d1DatabaseBindingResource = &schema.Resource{
+	Schema: map[string]*schema.Schema{
+		"name": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "The global variable for the binding in your Worker code.",
+		},
+		"id": {
+			Type:        schema.TypeString,
+			Required:    true,
+			Description: "ID of the Database to bind to.",
+		},
+	},
+}
+
 var analyticsEngineBindingResource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
 		"name": {
@@ -168,6 +183,11 @@ func resourceCloudflareWorkerScriptSchema() map[string]*schema.Schema {
 			Type:     schema.TypeSet,
 			Optional: true,
 			Elem:     r2BucketBindingResource,
+		},
+		"d1_database_binding": {
+			Type:     schema.TypeSet,
+			Optional: true,
+			Elem:     d1DatabaseBindingResource,
 		},
 		"analytics_engine_binding": {
 			Type:     schema.TypeSet,

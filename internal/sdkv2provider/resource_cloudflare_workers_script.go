@@ -114,6 +114,13 @@ func parseWorkerBindings(d *schema.ResourceData, bindings ScriptBindings) {
 		}
 	}
 
+	for _, rawData := range d.Get("d1_database_binding").(*schema.Set).List() {
+		data := rawData.(map[string]interface{})
+		bindings[data["name"].(string)] = cloudflare.WorkerD1DatabaseBinding{
+			ID: data["id"].(string),
+		}
+	}
+
 	for _, rawData := range d.Get("analytics_engine_binding").(*schema.Set).List() {
 		data := rawData.(map[string]interface{})
 		bindings[data["name"].(string)] = cloudflare.WorkerAnalyticsEngineBinding{
@@ -209,6 +216,7 @@ func resourceCloudflareWorkerScriptRead(ctx context.Context, d *schema.ResourceD
 	webAssemblyBindings := &schema.Set{F: schema.HashResource(webAssemblyBindingResource)}
 	serviceBindings := &schema.Set{F: schema.HashResource(serviceBindingResource)}
 	r2BucketBindings := &schema.Set{F: schema.HashResource(r2BucketBindingResource)}
+	d1DatabaseBindings := &schema.Set{F: schema.HashResource(d1DatabaseBindingResource)}
 	analyticsEngineBindings := &schema.Set{F: schema.HashResource(analyticsEngineBindingResource)}
 
 	for name, binding := range bindings {
@@ -253,6 +261,11 @@ func resourceCloudflareWorkerScriptRead(ctx context.Context, d *schema.ResourceD
 				"name":        name,
 				"bucket_name": v.BucketName,
 			})
+		case cloudflare.WorkerD1DatabaseBinding:
+			d1DatabaseBindings.Add(map[string]interface{}{
+				"name": name,
+				"id":   v.ID,
+			})
 		case cloudflare.WorkerAnalyticsEngineBinding:
 			analyticsEngineBindings.Add(map[string]interface{}{
 				"name":    name,
@@ -287,6 +300,10 @@ func resourceCloudflareWorkerScriptRead(ctx context.Context, d *schema.ResourceD
 
 	if err := d.Set("r2_bucket_binding", r2BucketBindings); err != nil {
 		return diag.FromErr(fmt.Errorf("cannot set r2 bucket bindings (%s): %w", d.Id(), err))
+	}
+
+	if err := d.Set("d1_database_binding", d1DatabaseBindings); err != nil {
+		return diag.FromErr(fmt.Errorf("cannot set d1 database bindings (%s): %w", d.Id(), err))
 	}
 
 	if err := d.Set("analytics_engine_binding", analyticsEngineBindings); err != nil {
