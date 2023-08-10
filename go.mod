@@ -93,4 +93,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/cloudflare/cloudflare-go v0.60.0 => github.com/qwilr/cloudflare-go v0.0.0-20230202044323-b60d455c7943
+replace github.com/cloudflare/cloudflare-go => ../cloudflare-go
